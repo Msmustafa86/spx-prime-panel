@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SPX PRIME v3.0 - FULL MODE LITE</title>
+  <style>
+    body{
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:#050505;
+      color:#e0e0e0;
+      margin:0;
+      padding:20px;
+    }
+    .container{
+      max-width:700px;
+      margin:0 auto;
+      background:#0b0b0b;
+      border-radius:16px;
+      box-shadow:0 0 25px rgba(0,0,0,0.8);
+      padding:20px 18px 18px 18px;
+      border:1px solid #222;
+    }
+    .header{
+      text-align:center;
+      margin-bottom:10px;
+    }
+    .header-title{
+      font-size:26px;
+      font-weight:800;
+      letter-spacing:1px;
+    }
+    .header-sub{
+      font-size:11px;
+      color:#999;
+      margin-top:4px;
+    }
+    .top-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      margin-top:10px;
+      margin-bottom:8px;
+    }
+    .spx-box{
+      background:#111;
+      border-radius:12px;
+      padding:8px 10px;
+      border:1px solid #333;
+      min-width:150px;
+    }
+    .spx-label{
+      font-size:11px;
+      color:#888;
+    }
+    .spx-value{
+      font-size:20px;
+      font-weight:bold;
+      color:#00ff4c;
+    }
+
+    .health-item{
+      display:flex;
+      align-items:center;
+      font-size:11px;
+      margin-bottom:3px;
+      position:relative;
+    }
+    .dot{
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      margin-right:5px;
+      background:#444;
+    }
+    .dot.ok{ background:#00ff4c; }
+    .dot.bad{ background:#ff0033; }
+
+    .tooltip{
+      position:absolute;
+      bottom:-28px;
+      left:0;
+      background:#111;
+      color:#fff;
+      padding:4px 8px;
+      font-size:10px;
+      border:1px solid #333;
+      border-radius:6px;
+      white-space:nowrap;
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(5px);
+      transition:opacity 0.15s ease, transform 0.15s ease;
+      z-index:9999;
+    }
+    .health-item:hover .tooltip{
+      opacity:1;
+      transform:translateY(0);
+    }
+
+    .forecast-bar{
+      display:flex;
+      justify-content:space-between;
+      margin-top:8px;
+      margin-bottom:10px;
+      background:#101010;
+      padding:6px 8px;
+      border-radius:10px;
+      border:1px solid #222;
+      font-size:11px;
+      flex-wrap:wrap;
+      gap:4px;
+    }
+    .forecast-item{
+      display:flex;
+      flex-direction:column;
+    }
+    .forecast-item span.label{
+      color:#888;
+      font-size:10px;
+    }
+    .forecast-item span.value{
+      font-family:monospace;
+      font-size:12px;
+    }
+
+    .signal-box{
+      margin-top:10px;
+      border-radius:14px;
+      padding:14px;
+      text-align:center;
+      border:1px solid #00ff4c;
+      background:radial-gradient(circle at top, #003300 0, #020502 60%);
+    }
+    .signal-main{
+      font-size:28px;
+      font-weight:900;
+      letter-spacing:1px;
+    }
+    .signal-main.al{ color:#00ff4c; }
+    .signal-main.sat{ color:#ff3355; }
+    .signal-main.bekle{ color:#ffeb3b; }
+    .signal-sub{
+      font-size:11px;
+      color:#ccc;
+      margin-top:4px;
+    }
+
+    .trend-info{
+      margin-top:6px;
+      font-size:11px;
+      color:#ccc;
+    }
+    .status-summary{
+      margin-top:4px;
+      font-size:11px;
+      color:#aaa;
+    }
+
+    .regime-box{
+      margin-top:8px;
+      padding:6px 8px;
+      border-radius:10px;
+      font-size:11px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border:1px solid #555;
+    }
+    .regime-label{
+      font-weight:bold;
+      color:#ccc;
+    }
+    .regime-value{
+      font-weight:bold;
+    }
+    .regime-trend{ color:#00ff4c; }
+    .regime-chop{ color:#ffeb3b; }
+
+    .gates-grid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:6px;
+    }
+    .gate-card{
+      background:#101010;
+      border-radius:10px;
+      padding:6px 8px;
+      border:1px solid #333;
+      font-size:11px;
+    }
+    .gate-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:4px;
+    }
+    .gate-title{
+      font-weight:bold;
+      color:#fff;
+    }
+    .gate-score{
+      font-family:monospace;
+      font-size:14px;
+      font-weight:bold;
+    }
+    .gate-msg{
+      font-size:11px;
+      color:#ddd;
+    }
+    .gate-pass{ border-color:#00aa44; }
+    .gate-pass .gate-score{ color:#00ff4c; }
+    .gate-fail{ border-color:#aa0022; }
+    .gate-fail .gate-score{ color:#ff3355; }
+    .gate-neutral{ border-color:#555; }
+
+    .debug-table{
+      width:100%;
+      font-size:11px;
+      color:#bbb;
+      border-top:1px solid #333;
+      margin-top:8px;
+      border-collapse:collapse;
+    }
+    td{
+      padding:4px 4px;
+      border-bottom:1px solid #222;
+    }
+    td.label{color:#888;}
+    td.value{
+      font-family:monospace;
+      text-align:right;
+    }
+
+    .settings-panel{
+      margin-top:10px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:#101010;
+      border:1px solid #333;
+      font-size:11px;
+    }
+    .settings-panel h3{
+      margin:0 0 6px 0;
+      font-size:12px;
+      color:#fff;
+    }
+    .settings-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:4px;
+    }
+    .settings-row label{
+      color:#bbb;
+      font-size:11px;
+    }
+    .settings-row input{
+      width:60px;
+      background:#000;
+      border:1px solid #444;
+      color:#00ff4c;
+      border-radius:6px;
+      padding:2px 4px;
+      font-size:11px;
+    }
+    .settings-note{
+      color:#777;
+      font-size:10px;
+      margin-top:2px;
+    }
+
+    .risk-toggle{
+      margin-top:10px;
+      padding:6px 10px;
+      border-radius:10px;
+      background:#111;
+      border:1px solid #333;
+      font-size:11px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      cursor:pointer;
+      user-select:none;
+    }
+    .risk-toggle span.label{
+      color:#ddd;
+      font-weight:600;
+    }
+    .risk-toggle span.arrow{
+      color:#888;
+      font-size:11px;
+    }
+
+    .risk-panel{
+      margin-top:6px;
+      padding:8px 10px;
+      border-radius:10px;
+      background:#101010;
+      border:1px solid #333;
+      font-size:11px;
+      display:none;
+    }
+    .risk-panel h3{
+      margin:0 0 6px 0;
+      font-size:12px;
+      color:#fff;
+    }
+    .risk-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:4px;
+    }
+    .risk-row label{
+      color:#bbb;
+      font-size:11px;
+    }
+    .risk-row input{
+      width:80px;
+      background:#000;
+      border:1px solid #444;
+      color:#00ff4c;
+      border-radius:6px;
+      padding:2px 4px;
+      font-size:11px;
+    }
+    .risk-note{
+      color:#777;
+      font-size:10px;
+      margin-top:2px;
+    }
+    .risk-values{
+      margin-top:4px;
+      font-size:11px;
+      color:#ccc;
+    }
+
+    .refresh-box{
+      margin-top:10px;
+      text-align:center;
+    }
+    button{
+      background:#00aa44;
+      color:#fff;
+      border:none;
+      padding:8px 18px;
+      border-radius:20px;
+      cursor:pointer;
+      font-size:13px;
+      font-weight:bold;
+    }
+    button:hover{
+      background:#00c04c;
+    }
+
+    #lastUpdate{
+      margin-top:6px;
+      font-size:10px;
+      color:#777;
+      text-align:right;
+    }
+    #errorBanner{
+      margin-top:6px;
+      font-size:11px;
+      color:#ffb3b3;
+      background:#330000;
+      border:1px solid #660000;
+      border-radius:6px;
+      padding:4px 8px;
+      display:none;
+    }
+
+    @media (max-width:600px){
+      body{
+        padding:10px;
+      }
+      .container{
+        padding:12px 10px;
+      }
+      .top-bar{
+        flex-direction:column;
+        gap:8px;
+      }
+      .spx-box{
+        width:100%;
+      }
+      .gates-grid{
+        grid-template-columns:1fr;
+      }
+      .debug-table{
+        display:none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-title">SPX PRIME V3.0 (FULL MODE LITE)</div>
+      <div class="header-sub">0DTE odaklı SPX yön sinyal motoru. Versiyon: 3.0 LITE</div>
+    </div>
+
+    <div class="top-bar">
+      <div class="spx-box">
+        <div class="spx-label">SPX:</div>
+        <div class="spx-value" id="spxPrice">-</div>
+      </div>
+      <div class="top-bar-right">
+        <div class="health-item">
+          <div id="health_spx" class="dot"></div>
+          <span>SPX çekirdek</span>
+          <div class="tooltip" id="tip_spx">Veri durumu bekleniyor.</div>
+        </div>
+        <div class="health-item">
+          <div id="health_htf" class="dot"></div>
+          <span>HTF M30 H1</span>
+          <div class="tooltip" id="tip_htf">Veri durumu bekleniyor.</div>
+        </div>
+        <div class="health-item">
+          <div id="health_macro" class="dot"></div>
+          <span>Makro VIX 10Y</span>
+          <div class="tooltip" id="tip_macro">Veri durumu bekleniyor.</div>
+        </div>
+        <div class="health-item">
+          <div id="health_spy" class="dot"></div>
+          <span>SPY referans</span>
+          <div class="tooltip" id="tip_spy">Veri durumu bekleniyor.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-panel">
+      <h3>Gelişmiş Ayarlar</h3>
+      <div class="settings-row">
+        <label for="atrPeriod">ATR periyodu</label>
+        <input type="number" id="atrPeriod" min="5" max="100" value="14" />
+      </div>
+      <div class="settings-row">
+        <label for="rsiPeriod">RSI periyodu</label>
+        <input type="number" id="rsiPeriod" min="5" max="100" value="14" />
+      </div>
+      <div class="settings-note">Değerleri değiştirdiğinde bir sonraki yenilemede uygulanır.</div>
+    </div>
+
+    <div class="forecast-bar">
+      <div class="forecast-item">
+        <span class="label">30 dk tahmin bandı:</span>
+        <span class="value" id="fcBand">-</span>
+      </div>
+      <div class="forecast-item">
+        <span class="label">VWAP mesafesi:</span>
+        <span class="value" id="vwapDist">-</span>
+      </div>
+      <div class="forecast-item">
+        <span class="label">SPX vs SPY*10 (basis):</span>
+        <span class="value" id="basisVal">-</span>
+      </div>
+      <div class="forecast-item">
+        <span class="label">Volatilite modu:</span>
+        <span class="value" id="volMode">-</span>
+      </div>
+    </div>
+
+    <div class="signal-box" id="signalBox">
+      <div class="signal-main bekle" id="signalText">BEKLE</div>
+      <div class="signal-sub" id="signalDesc">Sistem hazırlanıyor, veri çekiliyor...</div>
+      <div class="trend-info" id="trendInfo">Trend güveni: -</div>
+      <div class="status-summary" id="statusSummary">Durum: -</div>
+    </div>
+
+    <div class="regime-box" id="regimeBox">
+      <div class="regime-label">Rejim:</div>
+      <div class="regime-value regime-chop" id="regimeText">Bilinmiyor</div>
+    </div>
+
+    <div class="gates-grid">
+      <div class="gate-card" id="gate1">
+        <div class="gate-header">
+          <div class="gate-title">1 Dış faktörler (VIX 10Y)</div>
+          <div class="gate-score" id="score1">0</div>
+        </div>
+        <div class="gate-msg" id="msg1">-</div>
+      </div>
+      <div class="gate-card" id="gate2">
+        <div class="gate-header">
+          <div class="gate-title">2 Çekirdek trend (M5 M15)</div>
+          <div class="gate-score" id="score2">0</div>
+        </div>
+        <div class="gate-msg" id="msg2">-</div>
+      </div>
+      <div class="gate-card" id="gate3">
+        <div class="gate-header">
+          <div class="gate-title">3 Momentum sağlık (RSI MACD)</div>
+          <div class="gate-score" id="score3">0</div>
+        </div>
+        <div class="gate-msg" id="msg3">-</div>
+      </div>
+      <div class="gate-card" id="gate4">
+        <div class="gate-header">
+          <div class="gate-title">4 Rejim ve likidite (ATR Hacim)</div>
+          <div class="gate-score" id="score4">0</div>
+        </div>
+        <div class="gate-msg" id="msg4">-</div>
+      </div>
+      <div class="gate-card" id="gate5">
+        <div class="gate-header">
+          <div class="gate-title">5 HTF uyum (M30 H1)</div>
+          <div class="gate-score" id="score5">0</div>
+        </div>
+        <div class="gate-msg" id="msg5">-</div>
+      </div>
+      <div class="gate-card" id="gate6">
+        <div class="gate-header">
+          <div class="gate-title">6 Breakout retest kalitesi</div>
+          <div class="gate-score" id="score6">0</div>
+        </div>
+        <div class="gate-msg" id="msg6">-</div>
+      </div>
+    </div>
+
+    <table class="debug-table">
+      <tr>
+        <td class="label">SPX / VWAP / ATR (M5)</td>
+        <td class="value" id="d_vwap_atr">-</td>
+      </tr>
+      <tr>
+        <td class="label">RSI5 / RSI15 / MACD / HIST (M5)</td>
+        <td class="value" id="d_rsi_macd">-</td>
+      </tr>
+      <tr>
+        <td class="label">M30 EMA20 / H1 EMA20</td>
+        <td class="value" id="d_htf_emas">-</td>
+      </tr>
+      <tr>
+        <td class="label">SPX vs SPY*10 (basis)</td>
+        <td class="value" id="d_basis">-</td>
+      </tr>
+      <tr>
+        <td class="label">Toplam skor</td>
+        <td class="value" id="d_score">-</td>
+      </tr>
+    </table>
+
+    <div class="risk-toggle" onclick="toggleRiskPanel()">
+      <span class="label">Risk Yönetimi ve Lot Hesaplama</span>
+      <span class="arrow" id="riskArrow">▼</span>
+    </div>
+
+    <div class="risk-panel" id="riskPanel">
+      <h3>Risk Yönetimi ve Lot Hesaplama</h3>
+      <div class="risk-row">
+        <label for="accSize">Hesap büyüklüğü ($)</label>
+        <input type="number" id="accSize" value="10000" />
+      </div>
+      <div class="risk-row">
+        <label for="riskPct">Trade risk yüzdesi (%)</label>
+        <input type="number" id="riskPct" value="1" />
+      </div>
+      <div class="risk-note">
+        Stop mesafesi varsayılan olarak ATR×2 alınır. Örnek hesaplama içindir.
+      </div>
+      <div class="risk-values" id="riskValues">
+        Risk: - , Stop mesafesi: - , Önerilen kontrat: -
+      </div>
+    </div>
+
+    <div class="refresh-box">
+      <button onclick="runSystem()">Verileri yenile (60 saniye bekle)</button>
+    </div>
+    <div id="errorBanner"></div>
+    <div id="lastUpdate">-</div>
+  </div>
+
+  <script>
+    const PROXIES = [
+      "https://api.allorigins.win/raw?url=",
+      "https://cors.isomorphic-git.org/",
+      "https://thingproxy.freeboard.io/fetch/"
+    ];
+    let currentProxyIndex = 0;
+
+    const TIMEFRAMES = {
+      M5:  { interval:"5m",  range:"2d"  },
+      M15: { interval:"15m", range:"5d"  },
+      M30: { interval:"30m", range:"10d" },
+      H1:  { interval:"60m", range:"30d" }
+    };
+
+    const CONFIG = {
+      atrPeriod:14,
+      rsiPeriod:14
+    };
+
+    let marketData = {
+      vix:0,
+      tnx:0,
+      lastTimestamp:0,
+      spxPrice:0,
+      spyPrice:0,
+      basis:0,
+      M5:{},
+      M15:{},
+      M30:{},
+      H1:{}
+    };
+
+    let retryCount = 0;
+    let lastSignalType = null;
+    let audioCtx = null;
+
+    function showError(msg){
+      const eb = document.getElementById("errorBanner");
+      eb.innerText = msg;
+      eb.style.display = "block";
+    }
+    function clearError(){
+      const eb = document.getElementById("errorBanner");
+      eb.innerText = "";
+      eb.style.display = "none";
+    }
+
+    function playBeep(){
+      try{
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if(!Ctx) return;
+        if(!audioCtx) audioCtx = new Ctx();
+        const ctx = audioCtx;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.value = 880;
+        gain.gain.setValueAtTime(0.001, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      }catch(e){
+        console.log("Beep error", e);
+      }
+    }
+
+    function triggerSignalAlert(signal, desc){
+      playBeep();
+      if("Notification" in window){
+        if(Notification.permission === "granted"){
+          new Notification("SPX PRIME: " + signal, { body: desc });
+        }else if(Notification.permission === "default"){
+          Notification.requestPermission().then(function(p){
+            if(p === "granted"){
+              new Notification("SPX PRIME: " + signal, { body: desc });
+            }
+          });
+        }
+      }
+    }
+
+    function toggleRiskPanel(){
+      const panel = document.getElementById("riskPanel");
+      const arrow = document.getElementById("riskArrow");
+      if(!panel || !arrow) return;
+      if(panel.style.display === "none" || panel.style.display === ""){
+        panel.style.display = "block";
+        arrow.innerText = "▲";
+        updateRiskPanel();
+      }else{
+        panel.style.display = "none";
+        arrow.innerText = "▼";
+      }
+    }
+
+    async function fetchViaProxies(rawUrl){
+      const encoded = encodeURIComponent(rawUrl);
+      let lastError = null;
+
+      for(let i = 0; i < PROXIES.length; i++){
+        const proxy = PROXIES[(currentProxyIndex + i) % PROXIES.length];
+        try{
+          const response = await fetch(proxy + encoded);
+          if(!response.ok) throw new Error("HTTP " + response.status);
+          const json = await response.json();
+          if(!json.chart || !json.chart.result || !json.chart.result[0]){
+            throw new Error("Yahoo chart verisi yok");
+          }
+          currentProxyIndex = (currentProxyIndex + i) % PROXIES.length;
+          return json.chart.result[0];
+        }catch(err){
+          console.warn("Proxy hatası:", proxy, err);
+          lastError = err;
+        }
+      }
+      throw lastError || new Error("Tüm proxy denemeleri başarısız");
+    }
+
+    async function fetchYahoo(symbol, interval, range){
+      const rawUrl =
+        "https://query1.finance.yahoo.com/v8/finance/chart/" +
+        symbol +
+        "?interval=" +
+        interval +
+        "&range=" +
+        range +
+        "&includePrePost=true";
+      try{
+        const result = await fetchViaProxies(rawUrl);
+        return result;
+      }catch(err){
+        console.error("Yahoo genel hata:", symbol, err);
+        return null;
+      }
+    }
+
+    function calculateEMA(closes, period){
+      if(!closes || closes.length < period) return 0;
+      const k = 2 / (period + 1);
+      let ema = closes[0];
+      for(let i = 1; i < closes.length; i++){
+        if(closes[i] != null) ema = closes[i] * k + ema * (1 - k);
+      }
+      return ema;
+    }
+
+    function calculateVWAP(data){
+      if(!data.closes || !data.volumes) return 0;
+      let cumVol = 0;
+      let cumVP = 0;
+      const len = Math.min(
+        data.closes.length,
+        data.highs.length,
+        data.lows.length,
+        data.volumes.length
+      );
+      for(let i = 0; i < len; i++){
+        const typical = (data.highs[i] + data.lows[i] + data.closes[i]) / 3;
+        const vol = data.volumes[i];
+        cumVol += vol;
+        cumVP += typical * vol;
+      }
+      return cumVol > 0 ? cumVP / cumVol : 0;
+    }
+
+    function calculateRSI(closes, period){
+      if(!closes || closes.length < period + 1) return 50;
+      let gains = 0;
+      let losses = 0;
+      for(let i = 1; i <= period; i++){
+        const diff = closes[i] - closes[i - 1];
+        if(diff >= 0) gains += diff;
+        else losses -= diff;
+      }
+      gains /= period;
+      losses /= period;
+      let rs = losses === 0 ? 100 : gains / losses;
+      let rsi = 100 - 100 / (1 + rs);
+      for(let i = period + 1; i < closes.length; i++){
+        const diff = closes[i] - closes[i - 1];
+        let gain = 0;
+        let loss = 0;
+        if(diff >= 0) gain = diff;
+        else loss = -diff;
+        gains = (gains * (period - 1) + gain) / period;
+        losses = (losses * (period - 1) + loss) / period;
+        rs = losses === 0 ? 100 : gains / losses;
+        rsi = 100 - 100 / (1 + rs);
+      }
+      return rsi;
+    }
+
+    function calculateMACD(closes, fast, slow, signal){
+      fast = fast || 12;
+      slow = slow || 26;
+      signal = signal || 9;
+      if(!closes || closes.length < slow + signal) return { macd:0, signal:0, hist:0 };
+
+      const kFast = 2 / (fast + 1);
+      const kSlow = 2 / (slow + 1);
+      const kSignal = 2 / (signal + 1);
+
+      let emaFast = closes[0];
+      let emaSlow = closes[0];
+      let macdLine = 0;
+      let signalEMA = 0;
+      let initializedSignal = false;
+
+      for(let i = 1; i < closes.length; i++){
+        const c = closes[i];
+        if(c == null) continue;
+        emaFast = c * kFast + emaFast * (1 - kFast);
+        emaSlow = c * kSlow + emaSlow * (1 - kSlow);
+        macdLine = emaFast - emaSlow;
+        if(!initializedSignal){
+          signalEMA = macdLine;
+          initializedSignal = true;
+        }else{
+          signalEMA = macdLine * kSignal + signalEMA * (1 - kSignal);
+        }
+      }
+
+      const macdNow = macdLine;
+      const signalNow = signalEMA;
+      const histNow = macdNow - signalNow;
+
+      return { macd:macdNow, signal:signalNow, hist:histNow };
+    }
+
+    function calculateATRDetails(data, period){
+      if(!data.highs || data.highs.length < period + 1) return { atr:0, avgTR:0 };
+      let trs = [];
+      for(let i = 1; i < data.highs.length; i++){
+        const high = data.highs[i];
+        const low = data.lows[i];
+        const prevC = data.closes[i - 1];
+        const tr = Math.max(
+          high - low,
+          Math.abs(high - prevC),
+          Math.abs(low - prevC)
+        );
+        trs.push(tr);
+      }
+      if(trs.length < period) return { atr:0, avgTR:0 };
+      let atr = 0;
+      for(let i = 0; i < period; i++) atr += trs[i];
+      atr /= period;
+      for(let i = period; i < trs.length; i++){
+        atr = (atr * (period - 1) + trs[i]) / period;
+      }
+      const sumTR = trs.reduce(function(a,b){ return a + b; }, 0);
+      const avgTR = trs.length > 0 ? sumTR / trs.length : atr;
+      return { atr:atr, avgTR:avgTR };
+    }
+
+    function setHealth(id, ok, tooltipId, tooltipMessage){
+      const el = document.getElementById(id);
+      const tip = document.getElementById(tooltipId);
+      if(!el || !tip) return;
+      el.classList.remove("ok","bad");
+      el.classList.add(ok ? "ok" : "bad");
+      tip.innerText = tooltipMessage;
+    }
+
+    async function runSystem(){
+      clearError();
+      document.getElementById("lastUpdate").innerText =
+        "Tüm zaman dilimleri çekiliyor, lütfen bekleyin...";
+
+      const atrInput = document.getElementById("atrPeriod");
+      const rsiInput = document.getElementById("rsiPeriod");
+      if(atrInput){
+        const v = parseInt(atrInput.value, 10);
+        if(!isNaN(v) && v >= 5 && v <= 100) CONFIG.atrPeriod = v;
+      }
+      if(rsiInput){
+        const v = parseInt(rsiInput.value, 10);
+        if(!isNaN(v) && v >= 5 && v <= 100) CONFIG.rsiPeriod = v;
+      }
+
+      const [
+        m5Raw,
+        m15Raw,
+        m30Raw,
+        h1Raw,
+        vixRaw,
+        tnxRaw,
+        spyRaw
+      ] = await Promise.all([
+        fetchYahoo("^GSPC", TIMEFRAMES.M5.interval,  TIMEFRAMES.M5.range),
+        fetchYahoo("^GSPC", TIMEFRAMES.M15.interval, TIMEFRAMES.M15.range),
+        fetchYahoo("^GSPC", TIMEFRAMES.M30.interval, TIMEFRAMES.M30.range),
+        fetchYahoo("^GSPC", TIMEFRAMES.H1.interval,  TIMEFRAMES.H1.range),
+        fetchYahoo("^VIX",  "5m", "1d"),
+        fetchYahoo("^TNX",  "5m", "1d"),
+        fetchYahoo("SPY",   "5m", "1d")
+      ]);
+
+      const spxOk = !!(m5Raw && m15Raw && m30Raw && h1Raw);
+      const macroOk = !!(vixRaw && tnxRaw);
+      const htfOk = !!(m30Raw && h1Raw);
+      const spyOk = !!spyRaw;
+
+      setHealth(
+        "health_spx",
+        spxOk,
+        "tip_spx",
+        spxOk
+          ? "SPX çekirdek veri başarılı alındı."
+          : "M5/M15/M30/H1 barlarından en az biri gelmedi."
+      );
+      setHealth(
+        "health_htf",
+        htfOk,
+        "tip_htf",
+        htfOk
+          ? "M30 ve H1 veri seti sağlıklı."
+          : "M30 veya H1 zaman dilimi verisi eksik."
+      );
+      setHealth(
+        "health_macro",
+        macroOk,
+        "tip_macro",
+        macroOk
+          ? "VIX ve 10Y tahvil verisi sağlıklı."
+          : "VIX veya 10Y tahvil verisi çekilemedi."
+      );
+      setHealth(
+        "health_spy",
+        spyOk,
+        "tip_spy",
+        spyOk
+          ? "SPY referans fiyatı başarılı alındı."
+          : "SPY fiyatı alınamadı."
+      );
+
+      if(!spxOk){
+        retryCount += 1;
+        const msg =
+          "Veri alınamadı, 10 saniye sonra tekrar denenecek. Deneme: " +
+          retryCount +
+          "/3";
+        showError(msg);
+        document.getElementById("lastUpdate").innerText =
+          "Hata: SPX verisi çekilemedi.";
+        if(retryCount <= 3){
+          setTimeout(runSystem, 10000);
+        }else{
+          showError("3 deneme sonrası veri alınamadı. Otomatik deneme durduruldu.");
+        }
+        return;
+      }else{
+        retryCount = 0;
+      }
+
+      marketData.lastTimestamp = m5Raw.timestamp[m5Raw.timestamp.length - 1];
+      marketData.macroOk = macroOk;
+      marketData.spyOk = spyOk;
+
+      function processTf(raw, key){
+        const d = {};
+        const q = raw.indicators.quote[0];
+        d.closes = q.close.filter(function(x){ return x != null; });
+        d.highs = q.high.filter(function(x){ return x != null; });
+        d.lows = q.low.filter(function(x){ return x != null; });
+        d.volumes = q.volume.filter(function(x){ return x != null; });
+        d.currentPrice = d.closes[d.closes.length - 1] || 0;
+        d.ema9 = calculateEMA(d.closes, 9);
+        d.ema21 = calculateEMA(d.closes, 21);
+        d.ema20 = calculateEMA(d.closes, 20);
+        d.rsi = calculateRSI(d.closes, CONFIG.rsiPeriod);
+        d.macd = calculateMACD(d.closes, 12, 26, 9);
+        const atrInfo = calculateATRDetails(d, CONFIG.atrPeriod);
+        d.atr = atrInfo.atr;
+        d.atrAvgTR = atrInfo.avgTR;
+        marketData[key] = d;
+      }
+
+      processTf(m5Raw, "M5");
+      processTf(m15Raw, "M15");
+      processTf(m30Raw, "M30");
+      processTf(h1Raw, "H1");
+      marketData.M5.vwap = calculateVWAP(marketData.M5);
+
+      if(vixRaw && vixRaw.meta){
+        const metaV = vixRaw.meta;
+        if(metaV.regularMarketPrice) marketData.vix = metaV.regularMarketPrice;
+      }
+      if(tnxRaw && tnxRaw.meta){
+        const metaT = tnxRaw.meta;
+        if(metaT.regularMarketPrice) marketData.tnx = metaT.regularMarketPrice;
+      }
+
+      if(spyRaw){
+        const qSpy = spyRaw.indicators.quote[0];
+        const closesSpy = qSpy.close.filter(function(x){ return x != null; });
+        marketData.spyPrice = closesSpy[closesSpy.length - 1] || 0;
+      }
+
+      const spxCloses = m5Raw.indicators.quote[0].close.filter(function(x){
+        return x != null;
+      });
+      marketData.spxPrice = spxCloses[spxCloses.length - 1] || 0;
+      marketData.basis = marketData.spxPrice - marketData.spyPrice * 10;
+
+      document.getElementById("spxPrice").innerText =
+        marketData.spxPrice.toFixed(2);
+
+      evaluateSystem();
+
+      const dt = new Date(marketData.lastTimestamp * 1000);
+      document.getElementById("lastUpdate").innerText =
+        "Son başarılı veri: " + dt.toLocaleTimeString();
+    }
+
+    function setGateStatus(cardId, scoreId, msgId, score, msg){
+      const gate = document.getElementById(cardId);
+      const sEl = document.getElementById(scoreId);
+      const mEl = document.getElementById(msgId);
+
+      gate.classList.remove("gate-pass","gate-fail","gate-neutral");
+      let cls = "gate-neutral";
+      if(score > 0) cls = "gate-pass";
+      else if(score < 0) cls = "gate-fail";
+      gate.classList.add(cls);
+
+      sEl.innerText = score > 0 ? "+" + score : String(score);
+      sEl.style.color =
+        cls === "gate-pass"
+          ? "#00ff4c"
+          : cls === "gate-fail"
+          ? "#ff0033"
+          : "#ffeb3b";
+      mEl.innerText = msg;
+    }
+
+    function updateRiskPanel(){
+      const panel = document.getElementById("riskPanel");
+      if(!panel || panel.style.display === "none") return;
+
+      const accSizeEl = document.getElementById("accSize");
+      const riskPctEl = document.getElementById("riskPct");
+      const out = document.getElementById("riskValues");
+      if(!accSizeEl || !riskPctEl || !out) return;
+
+      const accSize = parseFloat(accSizeEl.value);
+      const riskPct = parseFloat(riskPctEl.value);
+      const atr = marketData.M5.atr || 0;
+
+      if(isNaN(accSize) || accSize <= 0 || isNaN(riskPct) || riskPct <= 0 || atr <= 0){
+        out.innerText = "Risk: - , Stop mesafesi: - , Önerilen kontrat: -";
+        return;
+      }
+
+      const riskDollar = accSize * (riskPct / 100);
+      const stopDist = atr * 2;
+      const qty = riskDollar / stopDist;
+
+      out.innerText =
+        "Risk: " +
+        riskDollar.toFixed(2) +
+        " $ , Stop mesafesi: " +
+        stopDist.toFixed(2) +
+        " puan , Önerilen kontrat: " +
+        qty.toFixed(2);
+    }
+
+    function evaluateSystem(){
+      let totalScore = 0;
+      const p = marketData.M5.currentPrice;
+      const atr = marketData.M5.atr || 0.01;
+      const avgTR = marketData.M5.atrAvgTR || atr;
+      const macroOk = marketData.macroOk === true;
+
+      const bandMove = atr * Math.sqrt(6);
+      const fcLow = p - bandMove;
+      const fcHigh = p + bandMove;
+      document.getElementById("fcBand").innerText =
+        fcLow.toFixed(2) + " - " + fcHigh.toFixed(2);
+
+      const vwap = marketData.M5.vwap || p;
+      const dist = p - vwap;
+      const distPct = (dist / vwap) * 100;
+      document.getElementById("vwapDist").innerText =
+        (dist >= 0 ? "üstünde " : "altında ") +
+        Math.abs(dist).toFixed(2) +
+        " (" +
+        distPct.toFixed(2) +
+        "%)";
+
+      document.getElementById("basisVal").innerText =
+        marketData.basis.toFixed(2);
+
+      const atrRatio = avgTR > 0 ? atr / avgTR : 1;
+      let volLabel = "Normal";
+      if(atrRatio < 0.8) volLabel = "Düşük";
+      else if(atrRatio > 1.2) volLabel = "Yüksek";
+      document.getElementById("volMode").innerText = volLabel;
+
+      let score1 = 0;
+      let msg1 = "";
+      let vixState = "bilinmiyor";
+
+      if(!macroOk){
+        msg1 =
+          "Makro veri eksik, VIX/TNX okunamadı, bu kapı puan vermiyor.";
+      }else{
+        const vix = marketData.vix;
+        const tnx = marketData.tnx;
+
+        if(vix > 0 && vix < 18){
+          score1 += 1;
+          msg1 += "VIX düşük, risk iştahı yüksek. ";
+          vixState = "düşük";
+        }else if(vix >= 25){
+          score1 -= 2;
+          msg1 += "VIX yüksek, panik modu. ";
+          vixState = "yüksek";
+        }else{
+          msg1 += "VIX normal. ";
+          vixState = "normal";
+        }
+
+        if(tnx > 0 && tnx >= 3 && tnx <= 4.75){
+          score1 += 1;
+          msg1 += "10Y tahvil dengede. ";
+        }else if(tnx > 5){
+          score1 -= 1;
+          msg1 += "10Y yüksek, değerleme baskısı. ";
+        }else{
+          msg1 += "10Y tarafsız. ";
+        }
+      }
+
+      setGateStatus("gate1","score1","msg1",score1,msg1);
+      totalScore += score1;
+
+      let score2 = 0;
+      let msg2 = "";
+      const m5 = marketData.M5;
+      const m15 = marketData.M15;
+
+      const m5Long = m5.ema9 > m5.ema21 && p > m5.vwap;
+      const m5Short = m5.ema9 < m5.ema21 && p < m5.vwap;
+      const m15Long = m15.ema9 > m15.ema21;
+      const m15Short = m15.ema9 < m15.ema21;
+
+      if(m5Long && m15Long){
+        score2 += 2;
+        msg2 += "M5 ve M15 birlikte LONG trendde. ";
+      }else if(m5Short && m15Short){
+        score2 -= 2;
+        msg2 += "M5 ve M15 birlikte SHORT trendde. ";
+      }else{
+        msg2 += "Kısa vade ve orta vade uyumsuz, trend zayıf. ";
+      }
+
+      setGateStatus("gate2","score2","msg2",score2,msg2);
+      totalScore += score2;
+
+      let score3 = 0;
+      let msg3 = "";
+
+      if(marketData.M5.rsi > 50){
+        score3 += 1;
+        msg3 += "RSI5 50 üstünde, momentum pozitif. ";
+      }else{
+        msg3 += "RSI5 50 altında, momentum sınırlı. ";
+      }
+
+      if(marketData.M5.macd.macd > 0){
+        score3 += 1;
+        msg3 += "MACD 0 üstü, trend lehine momentum. ";
+      }else{
+        msg3 += "MACD 0 altında, momentum zayıf. ";
+      }
+
+      if(marketData.M15.rsi >= 75){
+        score3 -= 2;
+        msg3 += "RSI15 çok yüksek, aşırı alım riski. ";
+      }else if(marketData.M15.rsi <= 30){
+        score3 += 1;
+        msg3 += "RSI15 düşük, aşırı satış toparlanma potansiyeli. ";
+      }
+
+      setGateStatus("gate3","score3","msg3",score3,msg3);
+      totalScore += score3;
+
+      let score4 = 0;
+      let msg4 = "";
+      let regime = "Bilinmiyor";
+      let regimeClass = "regime-chop";
+
+      const emaGap = Math.abs(m5.ema9 - m5.ema21);
+      const isChop = emaGap < atr * 0.1;
+
+      if(isChop){
+        regime = "CHOP modu, yön net değil";
+        regimeClass = "regime-chop";
+        msg4 += "EMA9-EMA21 çok yakın, ATR düşük. Chop riski yüksek. ";
+      }else{
+        regime = "TREND modu";
+        regimeClass = "regime-trend";
+
+        const recentVols = m5.volumes.slice(-50);
+        const avgVol =
+          recentVols.reduce(function(a,b){ return a + b; }, 0) /
+          Math.max(recentVols.length, 1);
+        const lastVol = recentVols[recentVols.length - 1] || avgVol;
+        const volRatio = avgVol > 0 ? lastVol / avgVol : 1;
+
+        if(volRatio > 1.2 && Math.abs(p - m5.vwap) > atr){
+          if(m5Long){
+            score4 += 1;
+            msg4 +=
+              "Trend modu artı yüksek hacim artı VWAP uzaklığı LONG lehine. ";
+          }else if(m5Short){
+            score4 -= 1;
+            msg4 +=
+              "Trend modu artı yüksek hacim artı VWAP uzaklığı SHORT lehine. ";
+          }else{
+            msg4 += "Hacim yüksek ama yön net değil. ";
+          }
+        }else{
+          msg4 += "Trend modu, fakat hacim veya ATR düşük (0.2x). ";
+        }
+      }
+
+      const regimeEl = document.getElementById("regimeText");
+      regimeEl.innerText = regime;
+      regimeEl.classList.remove("regime-trend","regime-chop");
+      regimeEl.classList.add(regimeClass);
+
+      setGateStatus("gate4","score4","msg4",score4,msg4);
+      totalScore += score4;
+
+      let score5 = 0;
+      let msg5 = "";
+      const m30 = marketData.M30;
+      const h1 = marketData.H1;
+
+      const m30Above = m30.currentPrice > m30.ema20;
+      const h1Above = h1.currentPrice > h1.ema20;
+
+      let htfMode = "karışık";
+
+      if(m30Above && h1Above){
+        score5 += 1;
+        msg5 += "M30 ve H1 EMA20 üstü, HTF LONG uyumlu. ";
+        htfMode = "LONG uyumlu";
+      }else if(!m30Above && !h1Above){
+        score5 -= 1;
+        msg5 += "M30 ve H1 EMA20 altı, HTF SHORT uyumlu. ";
+        htfMode = "SHORT uyumlu";
+      }else{
+        msg5 += "HTF tarafsız veya karışık. ";
+        htfMode = "tarafsız";
+      }
+
+      setGateStatus("gate5","score5","msg5",score5,msg5);
+      totalScore += score5;
+
+      let score6 = 0;
+      let msg6 = "";
+      const closes = m5.closes;
+      if(closes.length >= 3){
+        const last = closes[closes.length - 1];
+        const prev = closes[closes.length - 2];
+        const prev2 = closes[closes.length - 3];
+
+        const recentMax = Math.max(prev, prev2);
+        const recentMin = Math.min(prev, prev2);
+
+        const nearTop =
+          last > recentMax && Math.abs(last - recentMax) < atr * 0.3;
+        const nearBottom =
+          last < recentMin && Math.abs(last - recentMin) < atr * 0.3;
+
+        if(nearTop && m5Long){
+          score6 += 1;
+          msg6 += "Breakout sonrası üst bölgede sağlam retest. ";
+        }else if(nearBottom && m5Short){
+          score6 -= 1;
+          msg6 += "Breakdown sonrası alt bölgede sağlam retest SHORT lehine. ";
+        }else{
+          msg6 += "Net bir breakout retest kalitesi yok. ";
+        }
+      }else{
+        msg6 += "Breakout kalitesi için veri yetersiz. ";
+      }
+
+      setGateStatus("gate6","score6","msg6",score6,msg6);
+      totalScore += score6;
+
+      document.getElementById("d_vwap_atr").innerText =
+        "SPX: " +
+        p.toFixed(2) +
+        " / VWAP: " +
+        vwap.toFixed(2) +
+        " / ATR: " +
+        atr.toFixed(2);
+
+      document.getElementById("d_rsi_macd").innerText =
+        "RSI5: " +
+        marketData.M5.rsi.toFixed(1) +
+        " / RSI15: " +
+        marketData.M15.rsi.toFixed(1) +
+        " / MACD: " +
+        marketData.M5.macd.macd.toFixed(2) +
+        " / HIST: " +
+        marketData.M5.macd.hist.toFixed(2);
+
+      document.getElementById("d_htf_emas").innerText =
+        "M30 EMA20: " +
+        marketData.M30.ema20.toFixed(2) +
+        " / H1 EMA20: " +
+        marketData.H1.ema20.toFixed(2);
+
+      document.getElementById("d_basis").innerText =
+        marketData.basis.toFixed(2);
+      document.getElementById("d_score").innerText = String(totalScore);
+
+      const maxScore = 9;
+      let confPct = Math.min(
+        100,
+        Math.round((Math.abs(totalScore) / maxScore) * 100)
+      );
+      let biasText = "";
+      if(totalScore > 0) biasText = confPct + "% LONG";
+      else if(totalScore < 0) biasText = confPct + "% SHORT";
+      else biasText = "Tarafsız";
+
+      const trendInfo = document.getElementById("trendInfo");
+      trendInfo.innerText = "Trend güveni: " + biasText + " (orta)";
+
+      const summaryEl = document.getElementById("statusSummary");
+      const regimeShort = regime.indexOf("TREND") === 0 ? "TREND modu" :
+                          regime.indexOf("CHOP") === 0 ? "CHOP modu" :
+                          "belirsiz";
+      const vixLabel = marketData.macroOk ? vixState : "bilinmiyor";
+      summaryEl.innerText =
+        "Durum: " +
+        regimeShort +
+        ". VIX: " +
+        vixLabel +
+        ". HTF: " +
+        htfMode +
+        ". Volatilite: " +
+        volLabel +
+        ".";
+
+      let finalSignal = "BEKLE";
+      let finalDesc = "";
+      let finalClass = "bekle";
+
+      const vixForLock = marketData.vix || 0;
+      const regimeLock =
+        regime.indexOf("CHOP") === 0 && vixForLock >= 22;
+
+      const strongLongCond =
+        totalScore >= 7 &&
+        score2 >= 2 &&
+        score5 >= 1 &&
+        regime.indexOf("TREND") === 0;
+
+      const strongShortCond =
+        totalScore <= -7 &&
+        score2 <= -2 &&
+        score5 <= -1 &&
+        regime.indexOf("TREND") === 0;
+
+      if(regimeLock){
+        finalSignal = "BEKLE";
+        finalDesc =
+          "Rejim CHOP ve VIX yüksek. Makro kilit açık, işlem önerilmiyor.";
+        finalClass = "bekle";
+      }else if(regime.indexOf("CHOP") === 0){
+        finalSignal = "BEKLE";
+        finalDesc = "Rejim CHOP. Sistem işlem önermiyor.";
+        finalClass = "bekle";
+      }else{
+        if(strongLongCond){
+          finalSignal = "GÜÇLÜ AL";
+          finalDesc = "Trend ve momentum net şekilde uzun taraf lehine.";
+          finalClass = "al";
+        }else if(totalScore >= 3){
+          finalSignal = "AL (temkinli)";
+          finalDesc =
+            "Uzun taraf lehine fakat risk orta düzey. Skor: " +
+            String(totalScore) +
+            ".";
+          finalClass = "al";
+        }else if(strongShortCond){
+          finalSignal = "GÜÇLÜ SAT";
+          finalDesc = "Kısa taraf lehine yoğun baskı.";
+          finalClass = "sat";
+        }else if(totalScore <= -3){
+          finalSignal = "SAT (temkinli)";
+          finalDesc =
+            "Kısa taraf lehine fakat risk orta düzey. Skor: " +
+            String(totalScore) +
+            ".";
+          finalClass = "sat";
+        }else{
+          finalSignal = "BEKLE";
+          finalDesc = "Skor zayıf veya tarafsız. Sistem temkinli.";
+          finalClass = "bekle";
+        }
+      }
+
+      const sBox = document.getElementById("signalBox");
+      const sText = document.getElementById("signalText");
+      const sDesc = document.getElementById("signalDesc");
+
+      sBox.classList.remove("al","sat","bekle");
+      sText.classList.remove("al","sat","bekle");
+
+      sText.innerText = finalSignal;
+      sDesc.innerText = finalDesc;
+
+      if(finalClass === "al"){
+        sBox.style.borderColor = "#00ff4c";
+        sText.classList.add("al");
+      }else if(finalClass === "sat"){
+        sBox.style.borderColor = "#ff3355";
+        sText.classList.add("sat");
+      }else{
+        sBox.style.borderColor = "#ffeb3b";
+        sText.classList.add("bekle");
+      }
+
+      if(
+        (finalClass === "al" || finalClass === "sat") &&
+        finalSignal !== lastSignalType
+      ){
+        triggerSignalAlert(finalSignal, finalDesc);
+      }
+      lastSignalType = finalSignal;
+
+      updateRiskPanel();
+    }
+
+    window.onload = function(){
+      runSystem();
+      const accSizeEl = document.getElementById("accSize");
+      const riskPctEl = document.getElementById("riskPct");
+      if(accSizeEl) accSizeEl.addEventListener("input", updateRiskPanel);
+      if(riskPctEl) riskPctEl.addEventListener("input", updateRiskPanel);
+    };
+    setInterval(runSystem, 60000);
+  </script>
+</body>
+</html>
